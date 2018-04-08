@@ -1,0 +1,29 @@
+group 'com.github.grishberg'
+version '1.0'
+
+ext {
+    PUBLISH_GROUP_ID = group
+    PUBLISH_ARTIFACT_ID = 'test-report'
+    PUBLISH_VERSION = version
+}
+
+apply plugin: 'java'
+apply plugin: 'groovy'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+dependencies {
+    compile 'com.android.tools.build:gradle:2.3.0'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile 'org.mockito:mockito-core:2.16.0'
+    compile gradleApi()
+    compile localGroovy()
+}
+
+// need to call  ./gradlew clean build generateRelease
+apply from: 'publish.gradle'

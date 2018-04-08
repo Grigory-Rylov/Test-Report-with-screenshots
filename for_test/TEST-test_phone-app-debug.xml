@@ -1,0 +1,79 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<testsuite name="com.github.grishberg.instrumentaltestsample.ExampleInstrumentedTest" tests="5" failures="2" errors="0" skipped="0" time="3.161" timestamp="2018-04-08T15:09:51" hostname="localhost">
+  <properties>
+    <property name="device" value="test_phone" />
+    <property name="flavor" value="debug" />
+    <property name="project" value="app" />
+  </properties>
+  <testcase name="failedTest1" classname="com.github.grishberg.instrumentaltestsample.ExampleInstrumentedTest" time="1.144">
+    <failure>org.junit.ComparisonFailure: expected:&lt;...om.github.grishberg.[wrong.pkg1]&gt; but was:&lt;...om.github.grishberg.[instrumentaltestsample]&gt;
+at org.junit.Assert.assertEquals(Assert.java:115)
+at org.junit.Assert.assertEquals(Assert.java:144)
+at com.github.grishberg.instrumentaltestsample.ExampleInstrumentedTest.failedTest1(ExampleInstrumentedTest.java:37)
+at java.lang.reflect.Method.invoke(Native Method)
+at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+at org.junit.runners.Suite.runChild(Suite.java:128)
+at org.junit.runners.Suite.runChild(Suite.java:27)
+at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+at android.support.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+at android.support.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:375)
+at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2074)
+</failure>
+  </testcase>
+  <testcase name="failedTest2" classname="com.github.grishberg.instrumentaltestsample.ExampleInstrumentedTest" time="0.493">
+    <failure>org.junit.ComparisonFailure: expected:&lt;...om.github.grishberg.[wrong.pkg2]&gt; but was:&lt;...om.github.grishberg.[instrumentaltestsample]&gt;
+at org.junit.Assert.assertEquals(Assert.java:115)
+at org.junit.Assert.assertEquals(Assert.java:144)
+at com.github.grishberg.instrumentaltestsample.ExampleInstrumentedTest.failedTest2(ExampleInstrumentedTest.java:46)
+at java.lang.reflect.Method.invoke(Native Method)
+at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+at org.junit.runners.Suite.runChild(Suite.java:128)
+at org.junit.runners.Suite.runChild(Suite.java:27)
+at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+at android.support.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+at android.support.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:375)
+at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2074)
+</failure>
+  </testcase>
+  <testcase name="useAppContext" classname="com.github.grishberg.instrumentaltestsample.ExampleInstrumentedTest" time="0.0" />
+  <testcase name="testPhoneButton2" classname="com.github.grishberg.instrumentaltestsample.MainActivityTest" time="0.111" />
+  <testcase name="testPhoneButton" classname="com.github.grishberg.instrumentaltestsample.MainActivityTest" time="0.679" />
+</testsuite>
