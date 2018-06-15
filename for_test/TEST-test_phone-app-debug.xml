@@ -75,5 +75,8 @@ at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:20
   </testcase>
   <testcase name="useAppContext" classname="com.github.grishberg.instrumentaltestsample.ExampleInstrumentedTest" time="0.0" />
   <testcase name="testPhoneButton2" classname="com.github.grishberg.instrumentaltestsample.MainActivityTest" time="0.111" />
+  <testcase name="ignoredTestTabletButton2" classname="com.github.grishberg.instrumentaltestsample.TabletTest" time="0.0">
+    <skipped />
+  </testcase>
   <testcase name="testPhoneButton" classname="com.github.grishberg.instrumentaltestsample.MainActivityTest" time="0.679" />
 </testsuite>

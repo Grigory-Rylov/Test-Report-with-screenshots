@@ -93,7 +93,13 @@ public class TestReportExt extends TestReport {
                 BigDecimal duration = parse(testCase.getAttribute("time"));
                 duration = duration.multiply(BigDecimal.valueOf(1000));
                 NodeList failures = testCase.getElementsByTagName("failure");
+                NodeList ignored = testCase.getElementsByTagName("skipped");
 
+                if (ignored.getLength() > 0) {
+                    model.addTest(className, testName, 0, deviceName, projectName, flavorName)
+                            .ignored();
+                    continue;
+                }
                 TestResultExt testResult = model.addTest(className, testName, duration.longValue(),
                         deviceName, projectName, flavorName);
                 for (int j = 0; j < failures.getLength(); j++) {
