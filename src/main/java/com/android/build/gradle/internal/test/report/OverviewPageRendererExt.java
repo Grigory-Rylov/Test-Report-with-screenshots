@@ -41,6 +41,7 @@ public class OverviewPageRendererExt extends PageRendererExt<AllTestResultsExt> 
         htmlWriter.startElement("th").characters("Package").endElement();
         htmlWriter.startElement("th").characters("Tests").endElement();
         htmlWriter.startElement("th").characters("Failures").endElement();
+        htmlWriter.startElement("th").characters("Ignored").endElement();
         htmlWriter.startElement("th").characters("Duration").endElement();
         htmlWriter.startElement("th").characters("Success rate").endElement();
         htmlWriter.endElement();
@@ -53,6 +54,7 @@ public class OverviewPageRendererExt extends PageRendererExt<AllTestResultsExt> 
             htmlWriter.endElement();
             htmlWriter.startElement("td").characters(Integer.toString(testPackage.getTestCount())).endElement();
             htmlWriter.startElement("td").characters(Integer.toString(testPackage.getFailureCount())).endElement();
+            htmlWriter.startElement("td").characters(Integer.toString(testPackage.getIgnoredCount())).endElement();
             htmlWriter.startElement("td").characters(testPackage.getFormattedDuration()).endElement();
             htmlWriter.startElement("td").attribute("class", testPackage.getStatusClass()).characters(testPackage.getFormattedSuccessRate()).endElement();
             htmlWriter.endElement();
@@ -68,6 +70,7 @@ public class OverviewPageRendererExt extends PageRendererExt<AllTestResultsExt> 
         htmlWriter.startElement("th").characters("Class").endElement();
         htmlWriter.startElement("th").characters("Tests").endElement();
         htmlWriter.startElement("th").characters("Failures").endElement();
+        htmlWriter.startElement("th").characters("Ignored").endElement();
         htmlWriter.startElement("th").characters("Duration").endElement();
         htmlWriter.startElement("th").characters("Success rate").endElement();
         htmlWriter.endElement();
@@ -81,6 +84,7 @@ public class OverviewPageRendererExt extends PageRendererExt<AllTestResultsExt> 
                 htmlWriter.startElement("a").attribute("href", String.format("%s.html", testClass.getFilename(reportType))).characters(testClass.getName()).endElement();
                 htmlWriter.startElement("td").characters(Integer.toString(testClass.getTestCount())).endElement();
                 htmlWriter.startElement("td").characters(Integer.toString(testClass.getFailureCount())).endElement();
+                htmlWriter.startElement("td").characters(Integer.toString(testClass.getIgnoredCount())).endElement();
                 htmlWriter.startElement("td").characters(testClass.getFormattedDuration()).endElement();
                 htmlWriter.startElement("td").attribute("class", testClass.getStatusClass()).characters(testClass.getFormattedSuccessRate()).endElement();
                 htmlWriter.endElement();

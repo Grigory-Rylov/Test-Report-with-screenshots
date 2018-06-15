@@ -96,8 +96,9 @@ public class TestReportExt extends TestReport {
                 NodeList ignored = testCase.getElementsByTagName("skipped");
 
                 if (ignored.getLength() > 0) {
-                    model.addTest(className, testName, 0, deviceName, projectName, flavorName)
-                            .ignored();
+                    TestResultExt ignoredResult = model.addTest(className, testName, 0, deviceName, projectName, flavorName);
+                    ignoredResult.ignored();
+                    model.addIgnoredTest(ignoredResult);
                     continue;
                 }
                 TestResultExt testResult = model.addTest(className, testName, duration.longValue(),

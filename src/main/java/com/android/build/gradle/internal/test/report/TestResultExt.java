@@ -13,6 +13,7 @@ public class TestResultExt extends TestResultModel implements Comparable<TestRes
     private final String flavor;
     final ClassTestResultsExt classResults;
     final List<TestResultExt.TestFailure> failures = new ArrayList<>();
+    final List<TestResultExt> ignoredTests = new ArrayList<>();
     final String name;
     private boolean ignored;
 
@@ -86,6 +87,8 @@ public class TestResultExt extends TestResultModel implements Comparable<TestRes
 
     public void ignored() {
         ignored = true;
+        classResults.addIgnoredTest(this);
+        ignoredTests.add(this);
     }
 
     @Override

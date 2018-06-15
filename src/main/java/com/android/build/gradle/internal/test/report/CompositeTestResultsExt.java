@@ -15,6 +15,7 @@ public abstract class CompositeTestResultsExt extends TestResultModel {
     private final CompositeTestResultsExt parent;
     private int tests;
     private final Set<TestResultExt> failures = new TreeSet<>();
+    private final Set<TestResultExt> ignored = new TreeSet<>();
     private long duration;
     private final Map<String, DeviceTestResultsExt> devices = new TreeMap<>();
     private final Map<String, VariantTestResultsExt> variants = new TreeMap<>();
@@ -35,6 +36,10 @@ public abstract class CompositeTestResultsExt extends TestResultModel {
 
     public int getFailureCount() {
         return failures.size();
+    }
+
+    public int getIgnoredCount() {
+        return ignored.size();
     }
 
     @Override
@@ -107,6 +112,24 @@ public abstract class CompositeTestResultsExt extends TestResultModel {
         tests++;
         duration += test.getDuration();
         return test;
+    }
+
+    protected void addIgnoredTest(TestResultExt test) {
+        ignored.add(test);
+        if (parent != null) {
+            parent.addIgnoredTest(test);
+        }
+        String deviceName = test.getDevice();
+        DeviceTestResultsExt deviceResults = devices.get(deviceName);
+        if (deviceResults != null) {
+            deviceResults.addIgnoredTest(test);
+        }
+
+        String key = getVariantKey(test.getProject(), test.getFlavor());
+        VariantTestResultsExt variantResults = variants.get(key);
+        if (variantResults != null) {
+            variantResults.addIgnoredTest(test);
+        }
     }
 
     protected void addDevice(String deviceName, TestResultExt testResult) {

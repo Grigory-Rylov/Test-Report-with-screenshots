@@ -31,6 +31,7 @@ public class PackagePageRendererExt extends PageRendererExt<PackageTestResultsEx
         htmlWriter.startElement("th").characters("Class").endElement();
         htmlWriter.startElement("th").characters("Tests").endElement();
         htmlWriter.startElement("th").characters("Failures").endElement();
+        htmlWriter.startElement("th").characters("Ignored").endElement();
         htmlWriter.startElement("th").characters("Duration").endElement();
         htmlWriter.startElement("th").characters("Success rate").endElement();
 
@@ -44,6 +45,7 @@ public class PackagePageRendererExt extends PageRendererExt<PackageTestResultsEx
             htmlWriter.endElement();
             htmlWriter.startElement("td").characters(Integer.toString(testClass.getTestCount())).endElement();
             htmlWriter.startElement("td").characters(Integer.toString(testClass.getFailureCount())).endElement();
+            htmlWriter.startElement("td").characters(Integer.toString(testClass.getIgnoredCount())).endElement();
             htmlWriter.startElement("td").characters(testClass.getFormattedDuration()).endElement();
             htmlWriter.startElement("td").attribute("class", testClass.getStatusClass()).characters(testClass.getFormattedSuccessRate()).endElement();
             htmlWriter.endElement();
