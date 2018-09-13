@@ -2,6 +2,10 @@
 ### Java template
 # Compiled class file
 *.class
+/.idea
+/.gradle
+/out
+/output
 
 # Log file
 *.log

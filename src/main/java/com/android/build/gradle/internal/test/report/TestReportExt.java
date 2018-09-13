@@ -1,7 +1,6 @@
 package com.android.build.gradle.internal.test.report;
 
 import com.google.common.io.Closeables;
-import org.gradle.api.GradleException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -129,7 +128,7 @@ public class TestReportExt extends TestReport {
                 suiteResults.addStandardError(stdErrElements.item(i).getTextContent());
             }
         } catch (Exception e) {
-            throw new GradleException(String.format("Could not load test results from '%s'.", file), e);
+            throw new GenerateReportException(String.format("Could not load test results from '%s'.", file), e);
         } finally {
             try {
                 Closeables.close(inputStream, true /* swallowIOException */);
@@ -156,7 +155,7 @@ public class TestReportExt extends TestReport {
                 }
             }
         } catch (Exception e) {
-            throw new GradleException(
+            throw new GenerateReportException(
                     String.format("Could not generate test report to '%s'.", reportDir), e);
         }
     }

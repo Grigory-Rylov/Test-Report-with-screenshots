@@ -4,6 +4,8 @@
     <bytecodeTargetLevel>
       <module name="test-report-with-screenshots_main" target="1.8" />
       <module name="test-report-with-screenshots_test" target="1.8" />
+      <module name="test-report_main" target="1.8" />
+      <module name="test-report_test" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>
