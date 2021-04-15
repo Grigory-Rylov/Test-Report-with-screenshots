@@ -1,3 +1,19 @@
+/*
+ * Copyright 2011 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.android.build.gradle.internal.test.report;
 
 import java.math.BigDecimal;
@@ -6,19 +22,22 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-/**
- * Created by grishberg on 08.04.18.
- */
-public abstract class CompositeTestResultsExt extends TestResultModel {
-    private final CompositeTestResultsExt parent;
-    private int tests;
-    private final Set<TestResultExt> failures = new TreeSet<>();
-    private final Set<TestResultExt> ignored = new TreeSet<>();
-    private long duration;
-    private final Map<String, DeviceTestResultsExt> devices = new TreeMap<>();
-    private final Map<String, VariantTestResultsExt> variants = new TreeMap<>();
+import static org.gradle.api.tasks.testing.TestResult.ResultType;
 
-    protected CompositeTestResultsExt(CompositeTestResultsExt parent) {
+/**
+ * Custom CompositeTestResults based on Gradle's CompositeTestResults
+ */
+public abstract class CompositeTestResults extends TestResultModel {
+    private final CompositeTestResults parent;
+    private int tests;
+    private final Set<TestResult> failures = new TreeSet<>();
+    private long duration;
+
+    private final Map<String, DeviceTestResults> devices = new TreeMap<>();
+    private final Map<String, VariantTestResults> variants = new TreeMap<>();
+
+
+    protected CompositeTestResults(CompositeTestResults parent) {
         this.parent = parent;
     }
 
@@ -36,10 +55,6 @@ public abstract class CompositeTestResultsExt extends TestResultModel {
         return failures.size();
     }
 
-    public int getIgnoredCount() {
-        return ignored.size();
-    }
-
     @Override
     public long getDuration() {
         return duration;
@@ -50,21 +65,21 @@ public abstract class CompositeTestResultsExt extends TestResultModel {
         return getTestCount() == 0 ? "-" : super.getFormattedDuration();
     }
 
-    public Set<TestResultExt> getFailures() {
+    public Set<TestResult> getFailures() {
         return failures;
     }
 
-    Map<String, DeviceTestResultsExt> getResultsPerDevices() {
+    Map<String, DeviceTestResults> getResultsPerDevices() {
         return devices;
     }
 
-    Map<String, VariantTestResultsExt> getResultsPerVariants() {
+    Map<String, VariantTestResults> getResultsPerVariants() {
         return variants;
     }
 
     @Override
-    public org.gradle.api.tasks.testing.TestResult.ResultType getResultType() {
-        return failures.isEmpty() ? org.gradle.api.tasks.testing.TestResult.ResultType.SUCCESS : org.gradle.api.tasks.testing.TestResult.ResultType.FAILURE;
+    public ResultType getResultType() {
+        return failures.isEmpty() ? ResultType.SUCCESS : ResultType.FAILURE;
     }
 
     public String getFormattedSuccessRate() {
@@ -87,64 +102,46 @@ public abstract class CompositeTestResultsExt extends TestResultModel {
                 BigDecimal.ROUND_DOWN).multiply(BigDecimal.valueOf(100)).intValue();
     }
 
-    protected void failed(TestResultExt failedTest,
+    protected void failed(TestResult failedTest,
                           String deviceName, String projectName, String flavorName) {
         failures.add(failedTest);
         if (parent != null) {
             parent.failed(failedTest, deviceName, projectName, flavorName);
         }
 
-        DeviceTestResultsExt deviceResults = devices.get(deviceName);
+        DeviceTestResults deviceResults = devices.get(deviceName);
         if (deviceResults != null) {
             deviceResults.failed(failedTest, deviceName, projectName, flavorName);
         }
 
         String key = getVariantKey(projectName, flavorName);
-        VariantTestResultsExt variantResults = variants.get(key);
+        VariantTestResults variantResults = variants.get(key);
         if (variantResults != null) {
             variantResults.failed(failedTest, deviceName, projectName, flavorName);
         }
     }
 
-    protected TestResultExt addTest(TestResultExt test) {
+    protected TestResult addTest(TestResult test) {
         tests++;
         duration += test.getDuration();
         return test;
     }
 
-    protected void addIgnoredTest(TestResultExt test) {
-        ignored.add(test);
-        if (parent != null) {
-            parent.addIgnoredTest(test);
-        }
-        String deviceName = test.getDevice();
-        DeviceTestResultsExt deviceResults = devices.get(deviceName);
-        if (deviceResults != null) {
-            deviceResults.addIgnoredTest(test);
-        }
-
-        String key = getVariantKey(test.getProject(), test.getFlavor());
-        VariantTestResultsExt variantResults = variants.get(key);
-        if (variantResults != null) {
-            variantResults.addIgnoredTest(test);
-        }
-    }
-
-    protected void addDevice(String deviceName, TestResultExt testResult) {
-        DeviceTestResultsExt deviceResults = devices.get(deviceName);
+    protected void addDevice(String deviceName, TestResult testResult) {
+        DeviceTestResults deviceResults = devices.get(deviceName);
         if (deviceResults == null) {
-            deviceResults = new DeviceTestResultsExt(deviceName, null);
+            deviceResults = new DeviceTestResults(deviceName, null);
             devices.put(deviceName, deviceResults);
         }
 
         deviceResults.addTest(testResult);
     }
 
-    protected void addVariant(String projectName, String flavorName, TestResultExt testResult) {
+    protected void addVariant(String projectName, String flavorName, TestResult testResult) {
         String key = getVariantKey(projectName, flavorName);
-        VariantTestResultsExt variantResults = variants.get(key);
+        VariantTestResults variantResults = variants.get(key);
         if (variantResults == null) {
-            variantResults = new VariantTestResultsExt(key, null);
+            variantResults = new VariantTestResults(key, null);
             variants.put(key, variantResults);
         }
 

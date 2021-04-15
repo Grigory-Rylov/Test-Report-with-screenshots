@@ -1,5 +1,21 @@
+/*
+ * Copyright 2011 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.android.build.gradle.internal.test.report;
 
+import org.gradle.api.GradleException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -13,39 +29,36 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
-import java.util.Map;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.ParseException;
 
 /**
- * Extended test report with showing screenshots.
+ * Custom test reporter based on Gradle's DefaultTestReport
  */
-public class TestReportExt extends TestReport {
+public class TestReport {
     private final HtmlReportRenderer htmlRenderer = new HtmlReportRenderer();
     private final ReportType reportType;
     private final File resultDir;
     private final File reportDir;
-    private Map<String, String> screenshotMap;
 
-    public TestReportExt(ReportType reportType, File resultDir, File reportDir,
-                         Map<String, String> screenshotMap) {
-        super(reportType, resultDir, reportDir);
+    public TestReport(ReportType reportType, File resultDir, File reportDir) {
         this.reportType = reportType;
         this.resultDir = resultDir;
         this.reportDir = reportDir;
-        this.screenshotMap = screenshotMap;
         ResourceUtils utils = new ResourceUtils();
         htmlRenderer.requireResource(utils.loadFromResources("report.js"));
         htmlRenderer.requireResource(utils.loadFromResources("base-style.css"));
         htmlRenderer.requireResource(utils.loadFromResources("style.css"));
     }
 
-    @Override
     public void generateReport() {
-        AllTestResultsExt model = loadModel();
+        AllTestResults model = loadModel();
         generateFiles(model);
     }
 
-    private AllTestResultsExt loadModel() {
-        AllTestResultsExt model = new AllTestResultsExt();
+    private AllTestResults loadModel() {
+        AllTestResults model = new AllTestResults();
         if (resultDir.exists()) {
             File[] files = resultDir.listFiles();
             if (files != null) {
@@ -59,7 +72,7 @@ public class TestReportExt extends TestReport {
         return model;
     }
 
-    private void mergeFromFile(File file, AllTestResultsExt model) {
+    private void mergeFromFile(File file, AllTestResults model) {
         InputStream inputStream = null;
         try {
             //noinspection IOResourceOpenedButNotSafelyClosed
@@ -79,9 +92,9 @@ public class TestReportExt extends TestReport {
             for (int i = 0; i < propertiesList.getLength(); i++) {
                 Element properties = (Element) propertiesList.item(i);
                 XPath xPath = XPathFactory.newInstance().newXPath();
-                deviceName = xPath.evaluate("property[@name='device']/@value", properties);
-                projectName = xPath.evaluate("property[@name='project']/@value", properties);
-                flavorName = xPath.evaluate("property[@name='flavor']/@value", properties);
+                deviceName = xPath.evaluate("property[@name='device']/@value",properties);
+                projectName = xPath.evaluate("property[@name='project']/@value",properties);
+                flavorName = xPath.evaluate("property[@name='flavor']/@value",properties);
             }
 
             NodeList testCases = document.getElementsByTagName("testcase");
@@ -92,22 +105,13 @@ public class TestReportExt extends TestReport {
                 BigDecimal duration = parse(testCase.getAttribute("time"));
                 duration = duration.multiply(BigDecimal.valueOf(1000));
                 NodeList failures = testCase.getElementsByTagName("failure");
-                NodeList ignored = testCase.getElementsByTagName("skipped");
-
-                if (ignored.getLength() > 0) {
-                    TestResultExt ignoredResult = model.addTest(className, testName, 0, deviceName, projectName, flavorName);
-                    ignoredResult.ignored();
-                    model.addIgnoredTest(ignoredResult);
-                    continue;
-                }
-                TestResultExt testResult = model.addTest(className, testName, duration.longValue(),
+                TestResult testResult = model.addTest(className, testName, duration.longValue(),
                         deviceName, projectName, flavorName);
                 for (int j = 0; j < failures.getLength(); j++) {
                     Element failure = (Element) failures.item(j);
                     testResult.addFailure(
                             failure.getAttribute("message"), failure.getTextContent(),
-                            deviceName, projectName, flavorName,
-                            getScreenshotByClass(className, testName));
+                            deviceName, projectName, flavorName);
                 }
             }
             NodeList ignoredTestCases = document.getElementsByTagName("ignored-testcase");
@@ -118,7 +122,7 @@ public class TestReportExt extends TestReport {
                 model.addTest(className, testName, 0, deviceName, projectName, flavorName).ignored();
             }
             String suiteClassName = document.getDocumentElement().getAttribute("name");
-            ClassTestResultsExt suiteResults = model.addTestClass(suiteClassName);
+            ClassTestResults suiteResults = model.addTestClass(suiteClassName);
             NodeList stdOutElements = document.getElementsByTagName("system-out");
             for (int i = 0; i < stdOutElements.getLength(); i++) {
                 suiteResults.addStandardOutput(stdOutElements.item(i).getTextContent());
@@ -128,7 +132,7 @@ public class TestReportExt extends TestReport {
                 suiteResults.addStandardError(stdErrElements.item(i).getTextContent());
             }
         } catch (Exception e) {
-            throw new GenerateReportException(String.format("Could not load test results from '%s'.", file), e);
+            throw new GradleException(String.format("Could not load test results from '%s'.", file), e);
         } finally {
             try {
                 Closeables.close(inputStream, true /* swallowIOException */);
@@ -138,30 +142,40 @@ public class TestReportExt extends TestReport {
         }
     }
 
-    private String getScreenshotByClass(String className, String testName) {
-        String path = screenshotMap.get(className + '#' + testName);
-        return path != null ? path : "";
-    }
-
-    private void generateFiles(AllTestResultsExt model) {
+    private void generateFiles(AllTestResults model) {
         try {
-            generatePage(model, new OverviewPageRendererExt(reportType), new File(reportDir, "index.html"));
-            for (PackageTestResultsExt packageResults : model.getPackages()) {
-                generatePage(packageResults, new PackagePageRendererExt(reportType),
+            generatePage(model, new OverviewPageRenderer(reportType), new File(reportDir, "index.html"));
+            for (PackageTestResults packageResults : model.getPackages()) {
+                generatePage(packageResults, new PackagePageRenderer(reportType),
                         new File(reportDir, packageResults.getFilename(reportType) + ".html"));
-                for (ClassTestResultsExt classResults : packageResults.getClasses()) {
-                    generatePage(classResults, new ClassPageRendererExt(reportType),
+                for (ClassTestResults classResults : packageResults.getClasses()) {
+                    generatePage(classResults, new ClassPageRenderer(reportType),
                             new File(reportDir, classResults.getFilename(reportType) + ".html"));
                 }
             }
         } catch (Exception e) {
-            throw new GenerateReportException(
+            throw new GradleException(
                     String.format("Could not generate test report to '%s'.", reportDir), e);
         }
     }
 
-    private <T extends CompositeTestResultsExt> void generatePage(T model, PageRendererExt<T> renderer,
-                                                                  File outputFile) throws Exception {
+    private <T extends CompositeTestResults> void generatePage(T model, PageRenderer<T> renderer,
+                                                               File outputFile) throws Exception {
         htmlRenderer.renderer(renderer).writeTo(model, outputFile);
+    }
+
+    /**
+     * Regardless of the default locale, comma ('.') is used as decimal separator
+     *
+     * @param source
+     * @return
+     * @throws ParseException
+     */
+    public BigDecimal parse(String source) throws ParseException {
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+        symbols.setDecimalSeparator('.');
+        DecimalFormat format = new DecimalFormat("#.#", symbols);
+        format.setParseBigDecimal(true);
+        return (BigDecimal) format.parse(source);
     }
 }

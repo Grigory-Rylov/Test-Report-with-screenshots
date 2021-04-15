@@ -16,9 +16,6 @@
 
 package com.android.build.gradle.internal.test.report;
 
-import com.google.common.base.Preconditions;
-import com.google.common.io.ByteStreams;
-
 import org.gradle.reporting.ReportRenderer;
 
 import java.io.BufferedOutputStream;
@@ -120,8 +117,6 @@ public class HtmlReportRenderer {
      * empty string if not found.
      */
     public static String substringAfterLast(String string, String separator) {
-        Preconditions.checkNotNull(string);
-        Preconditions.checkNotNull(separator);
         int pos = string.lastIndexOf(separator);
         if (pos == -1 || pos == (string.length() - separator.length())) {
             return "";

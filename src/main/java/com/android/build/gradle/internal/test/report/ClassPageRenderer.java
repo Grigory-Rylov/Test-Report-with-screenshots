@@ -1,3 +1,19 @@
+/*
+ * Copyright 2011 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.android.build.gradle.internal.test.report;
 
 import java.io.IOException;
@@ -9,13 +25,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.gradle.api.tasks.testing.TestResult.ResultType;
+
 /**
- * Created by grishberg on 08.04.18.
+ * Custom ClassPageRenderer based on Gradle's ClassPageRenderer
  */
-class ClassPageRendererExt extends PageRendererExt<ClassTestResultsExt> {
+class ClassPageRenderer extends PageRenderer<ClassTestResults> {
     private final CodePanelRenderer codePanelRenderer = new CodePanelRenderer();
 
-    ClassPageRendererExt(ReportType reportType) {
+    ClassPageRenderer(ReportType reportType) {
         super(reportType);
     }
 
@@ -31,7 +49,7 @@ class ClassPageRendererExt extends PageRendererExt<ClassTestResultsExt> {
                 .characters(" > ")
                 .startElement("a").attribute("href", String.format("%s.html", getResults().getPackageResults().getFilename(reportType))).characters(getResults().getPackageResults().getName()).endElement()
                 .characters(String.format(" > %s", getResults().getSimpleName()))
-                .endElement();
+        .endElement();
     }
 
     private void renderTests(SimpleHtmlWriter htmlWriter) throws IOException {
@@ -41,10 +59,10 @@ class ClassPageRendererExt extends PageRendererExt<ClassTestResultsExt> {
                 .startElement("th").characters("Test").endElement();
 
         // get all the results per device and per test name
-        Map<String, Map<String, TestResultExt>> results = getResults().getTestResultsMap();
+        Map<String, Map<String, TestResult>> results = getResults().getTestResultsMap();
 
         // gather all devices.
-        List<String> devices = new ArrayList(results.keySet());
+        List<String> devices = new ArrayList<>(results.keySet());
         Collections.sort(devices);
 
         for (String device : devices) {
@@ -54,7 +72,7 @@ class ClassPageRendererExt extends PageRendererExt<ClassTestResultsExt> {
 
         // gather all tests
         Set<String> tests = new HashSet<>();
-        for (Map<String, TestResultExt> deviceMap : results.values()) {
+        for (Map<String, TestResult> deviceMap : results.values()) {
             tests.addAll(deviceMap.keySet());
         }
         List<String> sortedTests = new ArrayList<>(tests);
@@ -63,12 +81,12 @@ class ClassPageRendererExt extends PageRendererExt<ClassTestResultsExt> {
         for (String testName : sortedTests) {
             htmlWriter.startElement("tr").startElement("td").characters(testName).endElement();
 
-            org.gradle.api.tasks.testing.TestResult.ResultType currentType = org.gradle.api.tasks.testing.TestResult.ResultType.SKIPPED;
+            ResultType currentType = ResultType.SKIPPED;
 
             // loop for all devices to find this test and put its result
             for (String device : devices) {
-                Map<String, TestResultExt> deviceMap = results.get(device);
-                TestResultExt test = deviceMap.get(testName);
+                Map<String, TestResult> deviceMap = results.get(device);
+                TestResult test = deviceMap.get(testName);
                 if (test != null) {
                     htmlWriter.startElement("td").attribute("class", test.getStatusClass())
                             .characters(String.format("%s (%s)",
@@ -89,10 +107,10 @@ class ClassPageRendererExt extends PageRendererExt<ClassTestResultsExt> {
         htmlWriter.endElement(); // table
     }
 
-    public static org.gradle.api.tasks.testing.TestResult.ResultType combineResultType(org.gradle.api.tasks.testing.TestResult.ResultType currentType, org.gradle.api.tasks.testing.TestResult.ResultType newType) {
+    public static ResultType combineResultType(ResultType currentType, ResultType newType) {
         switch (currentType) {
             case SUCCESS:
-                if (newType == org.gradle.api.tasks.testing.TestResult.ResultType.FAILURE) {
+                if (newType == ResultType.FAILURE) {
                     return newType;
                 }
 
@@ -100,7 +118,7 @@ class ClassPageRendererExt extends PageRendererExt<ClassTestResultsExt> {
             case FAILURE:
                 return currentType;
             case SKIPPED:
-                if (newType != org.gradle.api.tasks.testing.TestResult.ResultType.SKIPPED) {
+                if (newType != ResultType.SKIPPED) {
                     return newType;
                 }
                 return currentType;
@@ -109,7 +127,7 @@ class ClassPageRendererExt extends PageRendererExt<ClassTestResultsExt> {
         }
     }
 
-    public String getStatusClass(org.gradle.api.tasks.testing.TestResult.ResultType resultType) {
+    public String getStatusClass(ResultType resultType) {
         switch (resultType) {
             case SUCCESS:
                 return "success";
@@ -125,7 +143,6 @@ class ClassPageRendererExt extends PageRendererExt<ClassTestResultsExt> {
     private static final class TestPercent {
         int failed;
         int total;
-
         TestPercent(int failed, int total) {
             this.failed = failed;
             this.total = total;
@@ -139,17 +156,17 @@ class ClassPageRendererExt extends PageRendererExt<ClassTestResultsExt> {
     @Override
     protected void renderFailures(SimpleHtmlWriter htmlWriter) throws IOException {
         // get all the results per device and per test name
-        Map<String, Map<String, TestResultExt>> results = getResults().getTestResultsMap();
+        Map<String, Map<String, TestResult>> results = getResults().getTestResultsMap();
 
-        Map<String, ClassPageRendererExt.TestPercent> testPassPercent = new HashMap<>();
+        Map<String, TestPercent> testPassPercent = new HashMap<>();
 
-        for (TestResultExt test : getResults().getFailures()) {
+        for (TestResult test : getResults().getFailures()) {
             String testName = test.getName();
             // compute the display name which will include the name of the device and how many
             // devices are impact so to not force counting.
             // If all devices, then we don't display all of them.
             // (The off chance that all devices fail the test with a different stack trace is slim)
-            ClassPageRendererExt.TestPercent percent = testPassPercent.get(testName);
+            TestPercent percent = testPassPercent.get(testName);
             if (percent != null && percent.isFullFailure()) {
                 continue;
             }
@@ -157,23 +174,23 @@ class ClassPageRendererExt extends PageRendererExt<ClassTestResultsExt> {
             if (percent == null) {
                 int failed = 0;
                 int total = 0;
-                for (Map<String, TestResultExt> deviceMap : results.values()) {
-                    TestResultExt testResult = deviceMap.get(testName);
+                for (Map<String, TestResult> deviceMap : results.values()) {
+                    TestResult testResult = deviceMap.get(testName);
                     if (testResult == null) {
                         continue;
                     }
-                    org.gradle.api.tasks.testing.TestResult.ResultType resultType = testResult.getResultType();
+                    ResultType resultType = testResult.getResultType();
 
-                    if (resultType == org.gradle.api.tasks.testing.TestResult.ResultType.FAILURE) {
+                    if (resultType == ResultType.FAILURE) {
                         failed++;
                     }
 
-                    if (resultType != org.gradle.api.tasks.testing.TestResult.ResultType.SKIPPED) {
+                    if (resultType != ResultType.SKIPPED) {
                         total++;
                     }
                 }
 
-                percent = new ClassPageRendererExt.TestPercent(failed, total);
+                percent = new TestPercent(failed, total);
                 testPassPercent.put(testName, percent);
             }
 
@@ -188,17 +205,9 @@ class ClassPageRendererExt extends PageRendererExt<ClassTestResultsExt> {
             }
 
             htmlWriter.startElement("div").attribute("class", "test")
-                    .startElement("a").attribute("name", test.getId().toString()).characters("").endElement() //browsers dont understand <a name="..."/>
+                .startElement("a").attribute("name", test.getId().toString()).characters("").endElement() //browsers dont understand <a name="..."/>
                     .startElement("h3").attribute("class", test.getStatusClass()).characters(name).endElement();
-            for (TestResultExt.TestFailure failure : test.getFailures()) {
-                if (failure.getScreenshotPath().length() > 0) {
-                    htmlWriter.startElement("div").attribute("class", "screenshot")
-                            .startElement("a").attribute("href", failure.getScreenshotPath())
-                                .attribute("target", "_blank")
-                            .characters("screenshot").endElement()
-                            .endElement();
-                }
-
+            for (TestResult.TestFailure failure : test.getFailures()) {
                 codePanelRenderer.render(failure.getStackTrace(), htmlWriter);
             }
             htmlWriter.endElement();

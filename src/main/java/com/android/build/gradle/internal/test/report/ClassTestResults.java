@@ -1,3 +1,19 @@
+/*
+ * Copyright 2011 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.android.build.gradle.internal.test.report;
 
 import java.util.HashMap;
@@ -6,16 +22,17 @@ import java.util.Set;
 import java.util.TreeSet;
 
 /**
- * Created by grishberg on 08.04.18.
+ * Custom ClassTestResults based on Gradle's ClassTestResults
  */
-public class ClassTestResultsExt extends CompositeTestResultsExt {
+class ClassTestResults extends CompositeTestResults {
+
     private final String name;
-    private final PackageTestResultsExt packageResults;
-    private final Set<TestResultExt> results = new TreeSet<>();
+    private final PackageTestResults packageResults;
+    private final Set<TestResult> results = new TreeSet<>();
     private final StringBuilder standardOutput = new StringBuilder();
     private final StringBuilder standardError = new StringBuilder();
 
-    public ClassTestResultsExt(String name, PackageTestResultsExt packageResults) {
+    public ClassTestResults(String name, PackageTestResults packageResults) {
         super(packageResults);
         this.name = name;
         this.packageResults = packageResults;
@@ -39,16 +56,16 @@ public class ClassTestResultsExt extends CompositeTestResultsExt {
         return name;
     }
 
-    public PackageTestResultsExt getPackageResults() {
+    public PackageTestResults getPackageResults() {
         return packageResults;
     }
 
-    public Map<String, Map<String, TestResultExt>> getTestResultsMap() {
-        Map<String, Map<String, TestResultExt>> map = new HashMap<>();
-        for (TestResultExt result : results) {
+    public Map<String, Map<String, TestResult>> getTestResultsMap() {
+        Map<String, Map<String, TestResult>> map = new HashMap<>();
+        for (TestResult result : results) {
             String device = result.getDevice();
 
-            Map<String, TestResultExt> deviceMap = map.get(device);
+            Map<String, TestResult> deviceMap = map.get(device);
             if (deviceMap == null) {
                 deviceMap = new HashMap<>();
                 map.put(device, deviceMap);
@@ -68,9 +85,9 @@ public class ClassTestResultsExt extends CompositeTestResultsExt {
         return standardOutput;
     }
 
-    public TestResultExt addTest(String testName, long duration,
-                                 String device, String project, String flavor) {
-        TestResultExt test = new TestResultExt(testName, duration, device, project, flavor, this);
+    public TestResult addTest(String testName, long duration,
+                              String device, String project, String flavor) {
+        TestResult test = new TestResult(testName, duration, device, project, flavor, this);
         results.add(test);
 
         addDevice(device, test);

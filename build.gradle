@@ -1,5 +1,5 @@
-group 'com.github.grishberg'
-version '1.3.1'
+group 'io.github.grigory-rylov'
+version '1.4.0'
 
 ext {
     PUBLISH_GROUP_ID = group
@@ -9,24 +9,23 @@ ext {
 
 apply plugin: 'java'
 apply plugin: 'groovy'
+apply plugin: 'maven'
+apply plugin: 'signing'
 
 sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
-    jcenter()
 }
 
 dependencies {
-    compile 'com.android.tools.build:gradle:2.3.0'
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    testCompile 'org.mockito:mockito-core:2.16.0'
-    compile gradleApi()
-    compile localGroovy()
+    testImplementation "junit:junit:4.12"
+    testImplementation 'org.mockito:mockito-core:2.23.0'
+    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.1.0"
 }
 
 // need to call  ./gradlew clean build generateRelease
-apply from: 'publish.gradle'
+// apply from: 'publish.gradle'
 
 apply plugin: 'maven-publish'
 // ./gradlew publishToMavenLocal
@@ -34,6 +33,76 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             from components.java
+        }
+    }
+}
+
+test {
+    useJUnit()
+    maxHeapSize = '1G'
+}
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+signing {
+    sign configurations.archives
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            snapshotRepository(url: "https://s01.oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            pom.project {
+                name 'Extended android instrumental test reports'
+                packaging 'jar'
+                // optionally artifactId can be defined here
+                description 'This Library is a for of android gradle test report generator v2.3.0.\n' +
+                        'It allows to generate android instrumental test reports ' +
+                        'without android gradle dependency'
+                url 'https://github.com/Grigory-Rylov/android-test-report-generator'
+
+                scm {
+                    connection 'scm:git:https://github.com/Grigory-Rylov/android-test-report-generator'
+                    developerConnection 'scm:git:https://github.com/Grigory-Rylov/android-test-report-generator'
+                    url 'https://github.com/Grigory-Rylov/android-test-report-generator'
+                }
+
+                licenses {
+                    license {
+                        name 'The Apache License, Version 2.0'
+                        url 'https://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'grishberg'
+                        name 'Grigory Rylov'
+                        email 'grishberg@gmail.com'
+                    }
+                }
+            }
         }
     }
 }

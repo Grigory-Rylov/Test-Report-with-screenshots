@@ -1,6 +1,5 @@
 package com.android.build.gradle.internal.test.report;
 
-import com.android.annotations.NonNull;
 
 /**
  * Created by grishberg on 08.04.18.
@@ -8,7 +7,7 @@ import com.android.annotations.NonNull;
 public class VariantTestResultsExt extends CompositeTestResultsExt {
     private final String name;
 
-    public VariantTestResultsExt(@NonNull String name, CompositeTestResultsExt parent) {
+    public VariantTestResultsExt(String name, CompositeTestResultsExt parent) {
         super(parent);
         this.name = name;
     }
