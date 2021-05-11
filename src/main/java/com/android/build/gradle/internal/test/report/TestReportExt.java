@@ -13,6 +13,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -25,8 +26,28 @@ public class TestReportExt extends TestReport {
     private final File reportDir;
     private Map<String, String> screenshotMap;
 
-    public TestReportExt(ReportType reportType, File resultDir, File reportDir,
-                         Map<String, String> screenshotMap) {
+    /**
+     * Simple usage of reporter.
+     *
+     * @param resultDir directory with generated xml after launched tests.
+     * @param reportDir directory for generating html reports.
+     */
+    public TestReportExt(File resultDir, File reportDir) {
+        this(resultDir, reportDir, Collections.emptyMap());
+    }
+
+    /**
+     * @param resultDir     directory with generated xml after launched tests.
+     * @param reportDir     directory for generating html reports.
+     * @param screenshotMap screenshot map, contains keys : 'package + "#" + testName',
+     *                      values - absolute path to screenshot file.
+     */
+    public TestReportExt(File resultDir, File reportDir, Map<String, String> screenshotMap) {
+        this(ReportType.SINGLE_FLAVOR, resultDir, reportDir, screenshotMap);
+    }
+
+    TestReportExt(ReportType reportType, File resultDir, File reportDir,
+                  Map<String, String> screenshotMap) {
         super(reportType, resultDir, reportDir);
         this.reportType = reportType;
         this.resultDir = resultDir;
