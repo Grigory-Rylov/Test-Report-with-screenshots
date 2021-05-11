@@ -1,0 +1,16 @@
+project.ext {
+    POM_PROJECT_NAME='Extended android instrumental test reports'
+    POM_DESCRIPTION='This Library is a for of android gradle test report generator v2.3.0.\n' +
+            'It allows to generate android instrumental test reports ' +
+            'without android gradle dependency'
+    POM_URL='https://github.com/Grigory-Rylov/android-test-report-generator'
+    POM_SCM_URL='scm:git:https://github.com/Grigory-Rylov/android-test-report-generator'
+    POM_SCM_CONNECTION='scm:git:https://github.com/Grigory-Rylov/android-test-report-generator'
+    POM_SCM_DEV_CONNECTION='scm:git:https://github.com/Grigory-Rylov/android-test-report-generator'
+    POM_LICENCE_NAME='The Apache License, Version 2.0'
+    POM_LICENCE_URL='https://www.apache.org/licenses/LICENSE-2.0.txt'
+    POM_DEVELOPER_ID='grishberg'
+    POM_DEVELOPER_NAME='Grigory Rylov'
+    POM_DEVELOPER_MAIL='grishberg@gmail.com'
+    POM_PACKAGING='jar'
+}

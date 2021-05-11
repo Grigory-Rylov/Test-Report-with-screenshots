@@ -1,16 +1,23 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+}
+
+plugins {
+    id 'java'
+    id 'maven-publish'
+    id 'signing'
+}
+
 group 'io.github.grigory-rylov'
-version '1.4.0'
+version '1.5.0'
 
 ext {
     PUBLISH_GROUP_ID = group
     PUBLISH_ARTIFACT_ID = 'test-report'
     PUBLISH_VERSION = version
 }
-
-apply plugin: 'java'
-apply plugin: 'groovy'
-apply plugin: 'maven'
-apply plugin: 'signing'
 
 sourceCompatibility = 1.8
 
@@ -24,85 +31,16 @@ dependencies {
     testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.1.0"
 }
 
-// need to call  ./gradlew clean build generateRelease
-// apply from: 'publish.gradle'
-
-apply plugin: 'maven-publish'
-// ./gradlew publishToMavenLocal
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
-        }
-    }
-}
 
 test {
     useJUnit()
     maxHeapSize = '1G'
 }
 
-task javadocJar(type: Jar) {
-    classifier = 'javadoc'
-    from javadoc
+java {
+    withJavadocJar()
+    withSourcesJar()
 }
 
-task sourcesJar(type: Jar) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-artifacts {
-    archives javadocJar, sourcesJar
-}
-
-signing {
-    sign configurations.archives
-}
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-            repository(url: "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
-            }
-
-            snapshotRepository(url: "https://s01.oss.sonatype.org/content/repositories/snapshots/") {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
-            }
-
-            pom.project {
-                name 'Extended android instrumental test reports'
-                packaging 'jar'
-                // optionally artifactId can be defined here
-                description 'This Library is a for of android gradle test report generator v2.3.0.\n' +
-                        'It allows to generate android instrumental test reports ' +
-                        'without android gradle dependency'
-                url 'https://github.com/Grigory-Rylov/android-test-report-generator'
-
-                scm {
-                    connection 'scm:git:https://github.com/Grigory-Rylov/android-test-report-generator'
-                    developerConnection 'scm:git:https://github.com/Grigory-Rylov/android-test-report-generator'
-                    url 'https://github.com/Grigory-Rylov/android-test-report-generator'
-                }
-
-                licenses {
-                    license {
-                        name 'The Apache License, Version 2.0'
-                        url 'https://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-
-                developers {
-                    developer {
-                        id 'grishberg'
-                        name 'Grigory Rylov'
-                        email 'grishberg@gmail.com'
-                    }
-                }
-            }
-        }
-    }
-}
+// ./gradlew -Prelease publish
+apply from: 'publish.gradle'
