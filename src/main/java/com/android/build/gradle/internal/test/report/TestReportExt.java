@@ -13,13 +13,16 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.ParseException;
 import java.util.Collections;
 import java.util.Map;
 
 /**
  * Extended test report with showing screenshots.
  */
-public class TestReportExt extends TestReport {
+public class TestReportExt {
     private final HtmlReportRenderer htmlRenderer = new HtmlReportRenderer();
     private final ReportType reportType;
     private final File resultDir;
@@ -48,7 +51,7 @@ public class TestReportExt extends TestReport {
 
     TestReportExt(ReportType reportType, File resultDir, File reportDir,
                   Map<String, String> screenshotMap) {
-        super(reportType, resultDir, reportDir);
+        //super(reportType, resultDir, reportDir);
         this.reportType = reportType;
         this.resultDir = resultDir;
         this.reportDir = reportDir;
@@ -59,7 +62,6 @@ public class TestReportExt extends TestReport {
         htmlRenderer.requireResource(utils.loadFromResources("style.css"));
     }
 
-    @Override
     public void generateReport() {
         AllTestResultsExt model = loadModel();
         generateFiles(model);
@@ -184,5 +186,20 @@ public class TestReportExt extends TestReport {
     private <T extends CompositeTestResultsExt> void generatePage(T model, PageRendererExt<T> renderer,
                                                                   File outputFile) throws Exception {
         htmlRenderer.renderer(renderer).writeTo(model, outputFile);
+    }
+
+    /**
+     * Regardless of the default locale, comma ('.') is used as decimal separator
+     *
+     * @param source
+     * @return
+     * @throws ParseException
+     */
+    public static BigDecimal parse(String source) throws ParseException {
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+        symbols.setDecimalSeparator('.');
+        DecimalFormat format = new DecimalFormat("#.#", symbols);
+        format.setParseBigDecimal(true);
+        return (BigDecimal) format.parse(source);
     }
 }

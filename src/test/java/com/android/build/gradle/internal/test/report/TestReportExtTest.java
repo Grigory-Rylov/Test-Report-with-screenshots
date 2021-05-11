@@ -18,7 +18,7 @@ public class TestReportExtTest {
     public void testGenerateReport() {
         screenshotMap.put("com.github.grishberg.instrumentaltestsample.ExampleInstrumentedTest#failedTest1",
                 "screenshots/test_phone-com.github.grishberg.instrumentaltestsample.ExampleInstrumentedTest_failedTest1.png");
-        TestReport reportExt = new TestReportExt(ReportType.SINGLE_FLAVOR,
+        TestReportExt reportExt = new TestReportExt(ReportType.SINGLE_FLAVOR,
                 new File("for_test"), new File("output"), screenshotMap);
         reportExt.generateReport();
     }
